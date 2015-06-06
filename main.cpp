@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <string>
 #include <iostream>
+#include <algorithm>
+#include <functional>
+#include <cctype>
+#include <locale>
 
 using namespace std;
 
@@ -14,7 +18,12 @@ struct hardware {
   attribute cpu;
 } hardware;
 
+
+
 void parseFile(string file);
+string trim(string s);
+
+
 
 int main(int argc, const char** argv) {
   parseFile("/proc/meminfo");
@@ -33,6 +42,9 @@ int main(int argc, const char** argv) {
   return(0);
 }
 
+/**
+   Parses proc info file
+*/
 void parseFile(string file) {
   // Get file to parse
   FILE *fp;
@@ -55,13 +67,13 @@ void parseFile(string file) {
       int colonPos;
       if((colonPos = read.find(':') ) != -1) {
 	attribute atr;
-	atr.name = read.substr(0, colonPos);
+	atr.name = trim(read.substr(0, colonPos));
 	read = read.substr(colonPos);
-	atr.value = read.substr(1, read.find('\n') - 1);
+	atr.value = trim(read.substr(1, read.find('\n') - 1));
 
 	if (atr.name == "MemTotal") {
 	  hardware.ram = atr;
-	} else if (atr.name.substr(0, 10)  == "model name") {
+	} else if (atr.name == "model name") {
 	  hardware.cpu = atr;
 	} 
      }
@@ -71,4 +83,15 @@ void parseFile(string file) {
   } while (true);
 
   fclose(fp);
+}
+
+
+/**
+   Returns string without leading and trailing white space
+*/
+string trim(string str) {
+  string s = str;
+  s.erase(s.begin(), find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace))));
+  s.erase(find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(), s.end());
+  return s;
 }
