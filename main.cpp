@@ -5,47 +5,34 @@
 #include <functional>
 #include <cctype>
 #include <locale>
+#include <unordered_map>
 
 using namespace std;
 
-struct attribute {
-  string name;
-  string value;
-};
 
-struct hardware {
-  attribute ram;
-  attribute cpu;
-} hardware;
-
-
-
-void parseFile(string file);
+void parseFile(unordered_map<string,string> &attributeList, string file);
 string trim(string s);
 
 
-
 int main(int argc, const char** argv) {
-  parseFile("/proc/meminfo");
-  parseFile("/proc/cpuinfo");
+  unordered_map<string,string> attributeList;
+  parseFile(attributeList, "/proc/meminfo");
+  parseFile(attributeList, "/proc/cpuinfo");
 
-  cout 
-    << hardware.ram.name
-    << ": "
-    << hardware.ram.value 
+  cout
+    << "RAM: "
+    << attributeList["RAM"]
     << "\n"
-    << hardware.cpu.name 
-    << ": "
-    << hardware.cpu.value
+    << "CPU: "
+    << attributeList["CPU"]
     << "\n";
-  
   return(0);
 }
 
 /**
    Parses proc info file
 */
-void parseFile(string file) {
+void parseFile(unordered_map<string,string> &attributeList, string file) {
   // Get file to parse
   FILE *fp;
   fp = fopen(file.c_str(),"r");
@@ -66,15 +53,15 @@ void parseFile(string file) {
     if (c == '\n') {
       int colonPos;
       if((colonPos = read.find(':') ) != -1) {
-	attribute atr;
-	atr.name = trim(read.substr(0, colonPos));
+	string name = trim(read.substr(0, colonPos));
 	read = read.substr(colonPos);
-	atr.value = trim(read.substr(1, read.find('\n') - 1));
+	string value = trim(read.substr(1, read.find('\n') - 1));
 
-	if (atr.name == "MemTotal") {
-	  hardware.ram = atr;
-	} else if (atr.name == "model name") {
-	  hardware.cpu = atr;
+	if (name == "MemTotal") {
+	  attributeList.emplace("RAM", value); 
+	 
+	} else if (name == "model name") {
+	  attributeList.emplace("CPU", value);
 	} 
      }
 
