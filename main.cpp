@@ -16,6 +16,7 @@ void parseDmi(unordered_map<string,string> &attributeList, string cmd);
 void parseDmiRamSlots(unordered_map<string,string> &attributeList);
 void parseDmiGPU(unordered_map<string,string> &attributeList);
 string trim(string s);
+void printHeader();
 
 string const MANUFACTURER = "Manufacturer";
 string const CPU_NAME = "Computer Name";
@@ -36,6 +37,8 @@ int main(int argc, const char** argv) {
   parseDmi(attributeList, "sudo dmidecode -t 16");
   parseDmiRamSlots(attributeList);
   parseDmiGPU(attributeList);
+
+  printHeader();
 
   cout 
     << MANUFACTURER << ": " << attributeList[MANUFACTURER] << "\n"
@@ -252,4 +255,17 @@ string trim(string str) {
   s.erase(s.begin(), find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace))));
   s.erase(find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(), s.end());
   return s;
+}
+
+/** 
+    Prints header ascii art
+*/
+void printHeader() {
+  cout
+    << " _    _               _                          _____                _\n"
+    << "| |  | |             | |                        |  __ \\              | |\n"
+    << "| |__| | __ _ _ __ __| |_      ____ _ _ __ ___  | |__) |___  __ _  __| | ___ _ __\n" 
+    << "|  __  |/ _` | '__/ _` \\ \\ /\\ / / _` | '__/ _ \\ |  _  // _ \\/ _` |/ _` |/ _ \\ '__|\n"
+    << "| |  | | (_| | | | (_| |\\ V  V / (_| | | |  __/ | | \\ \\  __/ (_| | (_| |  __/ |\n"
+    << "|_|  |_|\\__,_|_|  \\__,_| \\_/\\_/ \\__,_|_|  \\___| |_|  \\_\\___|\\__,_|\\__,_|\\___|_|\n\n";
 }
